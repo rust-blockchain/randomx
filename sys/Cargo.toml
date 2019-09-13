@@ -1,0 +1,11 @@
+[package]
+name = "randomx-sys"
+version = "0.1.0"
+authors = ["Wei Tang <hi@that.world>"]
+edition = "2018"
+
+[dependencies]
+
+[build-dependencies]
+bindgen = "0.50"
+cmake = "0.1"
