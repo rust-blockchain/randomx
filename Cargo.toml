@@ -5,6 +5,7 @@ authors = ["Wei Tang <hi@that.world>"]
 edition = "2018"
 
 [dependencies]
+sys = { package = "randomx-sys", version = "0.1", path = "sys" }
 
 [workspace]
 members = [
