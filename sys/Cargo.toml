@@ -1,6 +1,8 @@
 [package]
 name = "randomx-sys"
 version = "0.1.0"
+description = "FFI bindings for RandomX"
+license = "BSD-3"
 authors = ["Wei Tang <hi@that.world>"]
 edition = "2018"
 
