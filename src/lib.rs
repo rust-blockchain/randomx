@@ -1,4 +1,4 @@
-const HASH_SIZE: usize = sys::RANDOMX_HASH_SIZE as usize;
+pub const HASH_SIZE: usize = sys::RANDOMX_HASH_SIZE as usize;
 
 pub struct VM {
     cache_ptr: *mut sys::randomx_cache,
