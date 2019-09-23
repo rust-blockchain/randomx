@@ -1,4 +1,4 @@
-use criterion::Criterion;
+use criterion::{Criterion, criterion_group, criterion_main};
 
 use randomx::{VM, FullVM};
 
