@@ -9,6 +9,13 @@ edition = "2018"
 [dependencies]
 sys = { package = "randomx-sys", version = "0.1", path = "sys" }
 
+[dev-dependencies]
+criterion = "0.3"
+
+[[bench]]
+name = "fullvm"
+harness = false
+
 [workspace]
 members = [
   "sys"
