@@ -8,10 +8,12 @@ pub struct FullVM {
 
 impl FullVM {
 	pub fn new(key: &[u8]) -> Self {
+		let flags = sys::randomx_flags_RANDOMX_FLAG_DEFAULT
+			| sys::randomx_flags_RANDOMX_FLAG_JIT
+			| sys::randomx_flags_RANDOMX_FLAG_FULL_MEM;
+
 		let cache_ptr = unsafe {
-			let ptr = sys::randomx_alloc_cache(
-				sys::randomx_flags_RANDOMX_FLAG_JIT
-			);
+			let ptr = sys::randomx_alloc_cache(flags);
 			sys::randomx_init_cache(
 				ptr,
 				key.as_ptr() as *const std::ffi::c_void,
@@ -22,9 +24,7 @@ impl FullVM {
 		};
 
 		let dataset_ptr = unsafe {
-			let ptr = sys::randomx_alloc_dataset(
-				sys::randomx_flags_RANDOMX_FLAG_DEFAULT
-			);
+			let ptr = sys::randomx_alloc_dataset(flags);
 			let count = sys::randomx_dataset_item_count();
 			sys::randomx_init_dataset(ptr, cache_ptr, 0, count);
 			ptr
@@ -32,8 +32,7 @@ impl FullVM {
 
 		let ptr = unsafe {
 			sys::randomx_create_vm(
-				sys::randomx_flags_RANDOMX_FLAG_JIT |
-				sys::randomx_flags_RANDOMX_FLAG_FULL_MEM,
+				flags,
 				cache_ptr,
 				dataset_ptr
 			)
@@ -75,10 +74,11 @@ pub struct VM {
 
 impl VM {
 	pub fn new(key: &[u8]) -> Self {
+		let flags = sys::randomx_flags_RANDOMX_FLAG_DEFAULT
+			| sys::randomx_flags_RANDOMX_FLAG_JIT;
+
 		let cache_ptr = unsafe {
-			let ptr = sys::randomx_alloc_cache(
-				sys::randomx_flags_RANDOMX_FLAG_JIT
-			);
+			let ptr = sys::randomx_alloc_cache(flags);
 			sys::randomx_init_cache(
 				ptr,
 				key.as_ptr() as *const std::ffi::c_void,
@@ -90,7 +90,7 @@ impl VM {
 
 		let ptr = unsafe {
 			sys::randomx_create_vm(
-				sys::randomx_flags_RANDOMX_FLAG_JIT,
+				flags,
 				cache_ptr,
 				std::ptr::null_mut()
 			)
