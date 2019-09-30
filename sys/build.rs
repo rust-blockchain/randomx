@@ -9,7 +9,13 @@ fn main() {
 
     println!("cargo:rustc-link-search=native={}/build", dst.display());
     println!("cargo:rustc-link-lib=static=randomx");
-    println!("cargo:rustc-link-lib=dylib=stdc++");
+    let target  = env::var("TARGET").unwrap();
+    if target.contains("apple") {
+        println!("cargo:rustc-link-lib=dylib=c++");
+    }
+    else {
+        println!("cargo:rustc-link-lib=dylib=stdc++");
+    }
 
     // The bindgen::Builder is the main entry point
     // to bindgen, and lets you build up options for
