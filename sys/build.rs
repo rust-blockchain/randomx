@@ -9,11 +9,10 @@ fn main() {
 
     println!("cargo:rustc-link-search=native={}/build", dst.display());
     println!("cargo:rustc-link-lib=static=randomx");
-    let target  = env::var("TARGET").unwrap();
-    if target.contains("apple") {
+    let target = env::var("TARGET").unwrap();
+    if target.contains("apple-darwin") {
         println!("cargo:rustc-link-lib=dylib=c++");
-    }
-    else {
+    } else {
         println!("cargo:rustc-link-lib=dylib=stdc++");
     }
 
