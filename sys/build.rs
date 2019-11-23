@@ -2,14 +2,21 @@ use std::env;
 use std::path::PathBuf;
 
 fn main() {
-    let dst = cmake::Config::new("randomx")
-        .define("ARCH", "native")
-        .build_target("all")
-        .build();
+    let target = env::var("TARGET").unwrap();
+
+    let mut config = cmake::Config::new("randomx");
+	config.define("ARCH", "native");
+
+	if target.contains("windows") {
+		config.build_target("ALL_BUILD")
+	} else {
+		config.build_target("all")
+	};
+
+	let dst = config.build();
 
     println!("cargo:rustc-link-search=native={}/build", dst.display());
     println!("cargo:rustc-link-lib=static=randomx");
-    let target = env::var("TARGET").unwrap();
     if target.contains("apple-darwin") {
         println!("cargo:rustc-link-lib=dylib=c++");
     } else {
