@@ -1,0 +1,61 @@
+trigger:
+- master
+
+jobs:
+- job: Linux
+  pool:
+    vmImage: 'ubuntu-latest'
+  timeoutInMinutes: 0
+  steps:
+  - script: git submodule update --init --recursive
+    displayName: 'Submodules'
+  - script: |
+      curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain=stable -y
+      source ~/.cargo/env
+      rustup update stable
+    displayName: 'Rust setup'
+  - script: cargo test --release --all
+    displayName: 'Run tests'
+  - script: cargo build --release
+    displayName: 'Build artifacts'
+
+- job: MacOS
+  pool:
+    vmImage: 'macOS-latest'
+  timeoutInMinutes: 0
+  steps:
+  - script: git submodule update --init --recursive
+    displayName: 'Submodules'
+  - script: |
+      curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain=stable -y
+      source ~/.cargo/env
+      rustup update stable
+    displayName: 'Rust setup'
+  - script: |
+      source ~/.cargo/env
+      cargo test --release --all
+    displayName: 'Run tests'
+  - script: |
+      source ~/.cargo/env
+      cargo build --release
+    displayName: 'Build artifacts'
+
+- job: Windows
+  pool:
+    vmImage: 'windows-latest'
+  timeoutInMinutes: 0
+  steps:
+  - script: git submodule update --init --recursive
+    displayName: 'Submodules'
+  - script: |
+      set CARGO_HOME=%USERPROFILE%\.cargo
+      curl -sSf -o rustup-init.exe https://win.rustup.rs
+      rustup-init.exe -y --default-toolchain stable
+      set PATH=%PATH%;%USERPROFILE%\.cargo\bin
+      echo "##vso[task.setvariable variable=PATH;]%PATH%;%USERPROFILE%\.cargo\bin"
+      rustup update stable
+    displayName: 'Rust setup'
+  - script: cargo test --release --all
+    displayName: 'Run tests'
+  - script: cargo build --release
+    displayName: 'Build artifacts'
