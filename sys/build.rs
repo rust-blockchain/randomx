@@ -30,6 +30,8 @@ fn main() {
         // The input header we would like to generate
         // bindings for.
         .header("randomx/src/randomx.h")
+        // Workaround for https://github.com/servo/rust-bindgen/issues/550
+        .hide_type("max_align_t")
         // Finish the builder and generate the bindings.
         .generate()
         // Unwrap the Result and panic on failure.
