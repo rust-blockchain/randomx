@@ -1,15 +1,16 @@
+use std::sync::Arc;
+
 pub const HASH_SIZE: usize = sys::RANDOMX_HASH_SIZE as usize;
 
-pub struct FullVM {
+pub struct FullCache {
 	cache_ptr: *mut sys::randomx_cache,
 	dataset_ptr: *mut sys::randomx_dataset,
-	ptr: *mut sys::randomx_vm,
 }
 
-unsafe impl Send for FullVM { }
-unsafe impl Sync for FullVM { }
+unsafe impl Send for FullCache { }
+unsafe impl Sync for FullCache { }
 
-impl FullVM {
+impl FullCache {
 	pub fn new(key: &[u8]) -> Self {
 		let flags = sys::randomx_flags_RANDOMX_FLAG_DEFAULT
 			| sys::randomx_flags_RANDOMX_FLAG_JIT
@@ -33,18 +34,42 @@ impl FullVM {
 			ptr
 		};
 
+		Self { cache_ptr, dataset_ptr }
+	}
+}
+
+impl Drop for FullCache {
+	fn drop(&mut self) {
+		unsafe {
+			sys::randomx_release_cache(self.cache_ptr);
+			sys::randomx_release_dataset(self.dataset_ptr);
+		}
+	}
+}
+
+pub struct FullVM {
+	cache: Arc<FullCache>,
+	ptr: *mut sys::randomx_vm,
+}
+
+impl FullVM {
+	pub fn new(cache: Arc<FullCache>) -> Self {
+		let flags = sys::randomx_flags_RANDOMX_FLAG_DEFAULT
+			| sys::randomx_flags_RANDOMX_FLAG_JIT
+			| sys::randomx_flags_RANDOMX_FLAG_FULL_MEM;
+
 		let ptr = unsafe {
 			sys::randomx_create_vm(
 				flags,
-				cache_ptr,
-				dataset_ptr
+				cache.cache_ptr,
+				cache.dataset_ptr
 			)
 		};
 
-		Self { cache_ptr, dataset_ptr, ptr }
+		Self { cache, ptr }
 	}
 
-	pub fn calculate(&self, input: &[u8]) -> [u8; HASH_SIZE] {
+	pub fn calculate(&mut self, input: &[u8]) -> [u8; HASH_SIZE] {
 		let ret = [0u8; HASH_SIZE];
 
 		unsafe {
@@ -63,8 +88,6 @@ impl FullVM {
 impl Drop for FullVM {
 	fn drop(&mut self) {
 		unsafe {
-			sys::randomx_release_cache(self.cache_ptr);
-			sys::randomx_release_dataset(self.dataset_ptr);
 			sys::randomx_destroy_vm(self.ptr);
 		}
 	}
@@ -74,9 +97,6 @@ pub struct VM {
 	cache_ptr: *mut sys::randomx_cache,
 	ptr: *mut sys::randomx_vm,
 }
-
-unsafe impl Send for VM { }
-unsafe impl Sync for VM { }
 
 impl VM {
 	pub fn new(key: &[u8]) -> Self {
@@ -105,7 +125,7 @@ impl VM {
 		Self { cache_ptr, ptr }
 	}
 
-	pub fn calculate(&self, input: &[u8]) -> [u8; HASH_SIZE] {
+	pub fn calculate(&mut self, input: &[u8]) -> [u8; HASH_SIZE] {
 		let ret = [0u8; HASH_SIZE];
 
 		unsafe {
