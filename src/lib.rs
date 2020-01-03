@@ -6,6 +6,9 @@ pub struct FullVM {
 	ptr: *mut sys::randomx_vm,
 }
 
+unsafe impl Send for FullVM { }
+unsafe impl Sync for FullVM { }
+
 impl FullVM {
 	pub fn new(key: &[u8]) -> Self {
 		let flags = sys::randomx_flags_RANDOMX_FLAG_DEFAULT
@@ -41,7 +44,7 @@ impl FullVM {
 		Self { cache_ptr, dataset_ptr, ptr }
 	}
 
-	pub fn calculate(&mut self, input: &[u8]) -> [u8; HASH_SIZE] {
+	pub fn calculate(&self, input: &[u8]) -> [u8; HASH_SIZE] {
 		let ret = [0u8; HASH_SIZE];
 
 		unsafe {
@@ -72,6 +75,9 @@ pub struct VM {
 	ptr: *mut sys::randomx_vm,
 }
 
+unsafe impl Send for VM { }
+unsafe impl Sync for VM { }
+
 impl VM {
 	pub fn new(key: &[u8]) -> Self {
 		let flags = sys::randomx_flags_RANDOMX_FLAG_DEFAULT
@@ -99,7 +105,7 @@ impl VM {
 		Self { cache_ptr, ptr }
 	}
 
-	pub fn calculate(&mut self, input: &[u8]) -> [u8; HASH_SIZE] {
+	pub fn calculate(&self, input: &[u8]) -> [u8; HASH_SIZE] {
 		let ret = [0u8; HASH_SIZE];
 
 		unsafe {
