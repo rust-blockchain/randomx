@@ -48,7 +48,7 @@ impl Drop for FullCache {
 }
 
 pub struct FullVM {
-	cache: Arc<FullCache>,
+	_cache: Arc<FullCache>,
 	ptr: *mut sys::randomx_vm,
 }
 
@@ -66,7 +66,7 @@ impl FullVM {
 			)
 		};
 
-		Self { cache, ptr }
+		Self { _cache: cache, ptr }
 	}
 
 	pub fn calculate(&mut self, input: &[u8]) -> [u8; HASH_SIZE] {
